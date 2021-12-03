@@ -4,10 +4,12 @@ using namespace std;
 template <typename T> 
 class Queue {
   private :
+
   T* queue;
   int front, rear, capacity;
 
   public :
+  
   Queue(int queueCapacity = 10);
   bool IsEmpty () const;
   T& Front() const;
