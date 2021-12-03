@@ -90,7 +90,6 @@ class P_queue{
 	void push(const T& a);
 	T pop();
 	bool isEmpty();
-	int size();
 };
 
 template <typename T>
@@ -106,7 +105,7 @@ P_queue<T>::~P_queue(){
 
 template <typename T>
 void P_queue<T>::push(const T& a){
-	if (size() == capacity){
+	if (size == capacity){
 		T* newPQ = new T[2*capacity];
 		for (int i=0; i < size; i++){
 			newPQ[i] = data[i];
@@ -136,10 +135,27 @@ void P_queue<T>::push(const T& a){
 template <typename T>
 T P_queue<T>::pop(){
 	T pop_data = data[0];
+	data[0] = data[--size];
+	
+	int parent = 0;
+	int child = 1;
 
+	while (child < size)
+	{
+		if (data[child < data[child+1]]){child++;}
 
+		if (data[parent] >= data[child]){break;}
+		else {
+		T tmp = data[parent];
+		data[parent] = data[child];
+		data[child] = tmp;
+		}
 
-	return
+		parent = child;
+		child = child * 2 + 1; 
+	}
+
+	return pop_data;
 }
 
 template <typename T>
@@ -147,8 +163,6 @@ inline bool P_queue<T>::isEmpty(){
 	return size == 0;
 }
 
-template <typename T>
-inline int P_queue<T>::size(){return size;}
 
 ////////////////////////////////////////////////////////
 
