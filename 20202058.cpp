@@ -67,7 +67,6 @@ void Queue<T>::Push(const T& x)
     delete[]queue;
     queue = newQueue;
   }
-  cnt++;
   rear = (rear + 1) % capacity; 
   queue[rear] = x;
 }
@@ -134,7 +133,6 @@ void P_queue<T>::push(const T& a){
 		child = parent;
 		parent = (parent - 1) / 2;
 	}
-	cnt++;
 	size++;
 }
 
@@ -303,6 +301,7 @@ void knapsack_2 (void){
 	Node u, v;
 
 	Q.Push(v);
+	cnt++;
 
 	while (! Q.IsEmpty())
 	{
@@ -315,14 +314,14 @@ void knapsack_2 (void){
 		u.weight = v.weight + items[u.level].w;
 
 		if ((u.weight <= K)&&(u.profit > maxprofit)) {maxprofit = u.profit;}
-
+		cnt++;
 		if (bound(u) > (double)maxprofit) {
 			Q.Push(u);
 		}
 
 		u.weight = v.weight;
 		u.profit = v.profit;
-
+		cnt++;
 		if (bound(u)> (double)maxprofit) {
 			Q.Push(u);
 		}
@@ -334,12 +333,11 @@ void knapsack_3 (void){
 	Node u, v;
 
 	v.bound = bound(v);
-
+	cnt++;
 	PQ.push(v);
 
 	while (!PQ.isEmpty())
 	{
-		cnt++;
 		v = PQ.pop();
 
 		if (v.bound > maxprofit){
@@ -351,7 +349,7 @@ void knapsack_3 (void){
 			if ((u.weight <= K)&&(u.profit > maxprofit)) {maxprofit = u.profit;}
 
 			u.bound = bound(u);
-
+			cnt++;
 			if (bound(u) > (double)maxprofit) {
 				PQ.push(u);
 			}
@@ -359,7 +357,7 @@ void knapsack_3 (void){
 			u.weight = v.weight;
 			u.profit = v.profit;
 			u.bound = bound(u);
-
+			cnt++;
 			if (bound(u)> (double)maxprofit) {
 				PQ.push(u);
 			}
