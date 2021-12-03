@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-int cnt = 0;
+int cnt = 0, cnt_p = 0;
 
 template <typename T> 
 class Queue {
@@ -67,6 +67,7 @@ void Queue<T>::Push(const T& x)
     delete[]queue;
     queue = newQueue;
   }
+  cnt_p++;
   rear = (rear + 1) % capacity; 
   queue[rear] = x;
 }
@@ -133,6 +134,7 @@ void P_queue<T>::push(const T& a){
 		child = parent;
 		parent = (parent - 1) / 2;
 	}
+	cnt_p++;
 	size++;
 }
 
@@ -217,7 +219,7 @@ item items[21];
 
 void insertion_ (item arr[]){
 	for (int i=2; i<=N; i++){
-		float key;
+		double key;
 		int j=0;
 		item key_i = arr[i];
 		key = arr[i].e;
@@ -389,7 +391,7 @@ int main (int argc, char* argv[]){
 
 	}
 
-	cout << maxprofit << "\n cnt : "<<cnt<< endl;
+	cout << maxprofit << "\n cnt : "<<cnt<<"\n push : "<<cnt_p<< endl;
 
 	return 0;
 }

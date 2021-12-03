@@ -1,96 +1,255 @@
 #include<stdio.h>
-#include<string.h> 
+#include<string.h>
 #include<stdbool.h>
+#include<stdlib.h>
 
-int maxprofit = 0;
-int numbest;
-int bestset[10];
-int include[10];
-int N;
-int s[3][6];
-int V,W;
-int p[5];
-int w[5];
-int n=4;
-void knapsack (int i, int profit, int weight);
-bool promising(int i, int profit, int weight) {
-   int j, k; 
-   int totweight; 
+int maxprofit;
+int n, k, w[21], v[21];
+double x[21];
+
+struct node {
+   int level, profit, weight;
    float bound;
-   if (weight >= W) 
-    return false;
+};
 
-   else {                     
-      j = i+1;
-   bound = profit; 
-   totweight = weight;
-   while ((j <= n) && (totweight +w[j] <= W)) {  
-      totweight = totweight + w[j]; 
-      bound = bound + p[j];
-      j++;
+typedef struct Queue {
+   struct node buf[110000];
+   int qsize;
+   int front;
+   int rear;
+}Queue;
+
+typedef struct PriorityQueue {
+   struct node heap[10000];
+   int count;
+}PriorityQueue;
+
+void nodeChange(struct node* a, struct node* b) {
+   struct node temp = *a;
+   *a = *b;
+   *b = temp;
+}
+
+void InitPQueue(PriorityQueue* PQ) {
+   PQ->count = 0;
+}
+
+void InsertPQ(PriorityQueue* root, struct node data) {
+   root->heap[root->count] = data;
+   int now = root->count;
+   int parent = (root->count - 1) / 2;
+   while (now > 0 && root->heap[now].bound > root->heap[parent].bound) {
+      nodeChange(&root->heap[now], &root->heap[parent]);
+      now = parent;
+      parent = (parent - 1) / 2;
    }
-   k=j;        
-   if (k <= n)  
-      bound = bound +(W-totweight)*p[k]/w[k];
-   return bound>maxprofit;
+   root->count++;
 }
 
+struct node RemovePQ(PriorityQueue* root) {
+   struct node res = root->heap[0];
+   root->count--;
+   root->heap[0] = root->heap[root->count];
+   int now = 0, leftChild = 1, rightChild = 2;
+   int target = now;
+   while (leftChild < root->count) {
+      if (root->heap[target].bound < root->heap[leftChild].bound) target = leftChild;
+      if (root->heap[target].bound < root->heap[rightChild].bound && rightChild < root->count) target = rightChild;
 
+      if (target == now) break;
+      else {
+         nodeChange(&root->heap[now], &root->heap[target]);
+         now = target;
+         leftChild = now * 2 + 1;
+         rightChild = now * 2 + 2;
+      }
+   }
+   return res;
 }
-int main(int argc, char *argv[]) { 
 
-    int sum_p=0;
-    int sum_w=0;
-    for(int i = 0; i < 4; i++) {
-        for(int j = 0; j < 2; j++) {
-            scanf("%d ", &s[i][j]);// input W[i][j] : i -> j weight
-        }
-    } 
-    V=s[0][0];
-    W=s[0][1];
-    printf("0번 %d \n", s[3][0]);
-    printf("%d %d ",V,W);
-    printf("1번 %d \n", s[3][0]);
-    p[0]=s[1][0];
-    printf("3번 %d \n", s[3][0]);
-    p[1]=s[2][0];
-    printf("4번 %d \n", s[3][0]);
-    p[2]=s[3][0];
-    printf("5번 %d \n", s[3][0]);
-    p[3]=s[4][0];
-    printf("6번 %d \n", s[3][0]);
-    printf("7번 %d \n", p[2]);
-    for(int j = 0; j < 4; j++) {
-        printf("%d \n", s[j+1][0]);
-        }
-    for(int j = 1; j < 5; j++) {
-            w[j-1]=s[j][1];
-            printf("%d \n", s[j][1]);
-        }
-    knapsack(0,p[0],w[0]);
-    for(int j=1;j<=n;j++){
-        if(bestset[j]==1)
-        {
-            sum_p+=p[j];
-            //sum_w+=w[j];
-            //printf("%d %d\n",p[j],w[j]);
-        }
-        
-    }
-    printf("가치 합산: %d",sum_p);
-} 
+bool empty(PriorityQueue* PQ) {
+   return PQ->count == 0;
+}
 
-void knapsack (int i, int profit, int weight) {
-   if (weight <= W && profit > maxprofit) { 
+int SizeofQueue(Queue* q) {
+   return sizeof(q->buf) / sizeof(struct node);
+}
+
+void InitQueue(Queue* q) {
+   q->rear = 0;
+   q->front = 0;
+}
+
+bool IsFull(Queue* q) {
+   return ((q->rear + 1) % q->qsize == q->front);
+}
+
+bool IsEmpty(Queue* q) {
+   return (q->front == q->rear);
+}
+
+void Enqueue(Queue* q, struct node data) {
+   q->rear = (q->rear + 1);
+   q->buf[q->rear] = data;
+}
+
+struct node Dequeue(Queue* q) {
+   q->front = q->front + 1;
+   return q->buf[q->front];
+}
+
+void insertion(int s, int e) {
+   int tmpw, tmpv;
+   double key;
+   int i, j;
+   for (i = s + 1; i <= e; i++) {
+      key = x[i];
+      tmpw = w[i];
+      tmpv = v[i];
+      for (j = i - 1; j > 0 && x[j] < key; j--) {
+         x[j + 1] = x[j];
+         w[j + 1] = w[j];
+         v[j + 1] = v[j];
+      }
+      x[j + 1] = key;
+      w[j + 1] = tmpw;
+      v[j + 1] = tmpv;
+   }
+}
+
+bool promising(int i, int profit, int weight) {
+   int j, l;
+   int totweight;
+   float bound;
+   if (weight >= k) {
+      return false;
+   }
+   else {
+      j = i + 1;
+      bound = (float)profit;
+      totweight = weight;
+      while ((j <= n) && (totweight + w[j] <= k)) {
+         totweight = totweight + w[j];
+         bound = bound + v[j];
+         j++;
+      }
+      l = j;
+      if (l <= n)
+         bound = bound + (k - totweight) * (float)v[l] / (float)w[l];
+
+      return bound > maxprofit;
+   }
+}
+
+void backtracking(int i, int profit, int weight) {
+   if (weight <= k && maxprofit < profit) {
       maxprofit = profit;
-      numbest = i; 
-        for(int j=1;j<4;j++)
-      bestset[i] = include[i]; 
    }
+
    if (promising(i, profit, weight)) {
-      include[i+1] = 1; // Include w[i+1]
-      knapsack(i+1, profit+p[i+1], weight+w[i+1]); //p,w
-      include[i+1] = 0; // Not include w[i+1]
-      knapsack(i+1, profit, weight);
+      backtracking(i + 1, profit + v[i + 1], weight + w[i + 1]);
+      backtracking(i + 1, profit, weight);
    }
+}
+
+float bound(struct node u) {
+   int l, j, totweight;
+   float result;
+   if (u.weight >= k) {
+      return 0;
+   }
+   else {
+      result = u.profit;
+      j = u.level + 1;
+      totweight = u.weight;
+      while ((j <= n) && (totweight + w[j] <= k)) {
+         totweight = totweight + w[j];
+         result = result + v[j];
+         j++;
+      }
+      l = j;
+      if (l <= n)
+         result = result + (k - totweight) * v[l] / w[l];
+      return result;
+   }
+}
+
+void breadth_first() {
+   Queue* queue = malloc(sizeof(Queue));
+   struct node u, o;
+   InitQueue(queue);
+   o.level = 0;
+   o.profit = 0;
+   o.weight = 0;
+   maxprofit = 0;
+   Enqueue(queue, o);
+   while (!IsEmpty(queue)) {
+      o = Dequeue(queue);
+      u.level = o.level + 1;
+      u.profit = o.profit + v[u.level];
+      u.weight = o.weight + w[u.level];
+      if ((u.weight <= k) && (u.profit > maxprofit)) maxprofit = u.profit;
+      if (bound(u) > maxprofit) Enqueue(queue, u);
+      u.weight = o.weight;
+      u.profit = o.profit;
+      if (bound(u) > maxprofit) Enqueue(queue, u);
+   }
+}
+
+void bestfirst() {
+   PriorityQueue* PQ = malloc(sizeof(PriorityQueue));
+   struct node u, o;
+   InitPQueue(PQ);
+   o.level = 0;
+   o.profit = 0;
+   o.weight = 0;
+   o.bound = bound(o);
+   maxprofit = 0;
+   InsertPQ(PQ, o);
+   while (!empty(PQ)) {
+      o = RemovePQ(PQ);
+      if (o.bound > maxprofit) {
+         u.level = o.level + 1;
+         u.profit = o.profit + v[u.level];
+         u.weight = o.weight + w[u.level];
+         if ((u.weight <= k) && (u.profit > maxprofit))
+            maxprofit = u.profit;
+         u.bound = bound(u);
+         if (bound(u) > maxprofit)
+            InsertPQ(PQ, u);
+         u.weight = o.weight;
+         u.profit = o.weight;
+         u.bound = bound(u);
+         if (u.bound > maxprofit) {
+            InsertPQ(PQ, u);
+         }
+      }
+   }
+}
+
+int main(int argc, char* argv[]) {
+
+   scanf("%d %d", &n, &k);
+
+   for (int i = 1; i <= n; i++) {
+      scanf("%d %d", &w[i], &v[i]);
+      x[i] = (double)v[i] / (double)w[i];
+   }
+
+   insertion(1, n);
+
+   int profit = 0, weight = 0;
+
+   if (strcmp(argv[1], "backtracking") == 0) {
+      backtracking(0, profit, weight);
+   }
+   else if (strcmp(argv[1], "breadth") == 0) {
+      breadth_first();
+   }
+   else if (strcmp(argv[1], "best") == 0) {
+      bestfirst();
+   }
+
+   printf("%d\n", maxprofit);
+
 }
