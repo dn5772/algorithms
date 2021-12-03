@@ -84,7 +84,7 @@ class P_queue{
 	int capacity;
 
 	public :
-	P_queue(int pq_capacity = 10));
+	P_queue(int pq_capacity = 10);
 	~P_queue();
 
 	void push(const T& a);
@@ -100,7 +100,7 @@ P_queue<T>::P_queue(int pq_capacity) : capacity(pq_capacity) {
 
 template <typename T>
 P_queue<T>::~P_queue(){
-	delete data[];
+	delete[] data;
 }
 
 template <typename T>
@@ -142,7 +142,7 @@ T P_queue<T>::pop(){
 
 	while (child < size)
 	{
-		if (data[child < data[child+1]]){child++;}
+		if (data[child+1] > data[child]){child++;}
 
 		if (data[parent] >= data[child]){break;}
 		else {
@@ -179,6 +179,7 @@ class Node{
 	double bound;
 
 	bool operator> (Node& no);
+	bool operator>= (Node& no);
 
 };
 
@@ -200,6 +201,11 @@ struct item{
 bool Node::operator> (Node& no){
 	if (this->bound > no.bound) {return true;}
 	else {return false;}
+}
+
+bool Node::operator>= (Node& no){
+	if (this->bound < no.bound) {return false;}
+	else {return true;}
 }
 
 int N, K, maxprofit = 0;
@@ -300,7 +306,7 @@ void knapsack_2 (void){
 
 		u.profit = v.profit + items[u.level].p;
 		u.weight = v.weight + items[u.level].w;
-		cout << "1 ^" << u.profit << endl;
+
 		if ((u.weight <= K)&&(u.profit > maxprofit)) {maxprofit = u.profit;}
 
 		if (bound(u) > (double)maxprofit) {
@@ -312,6 +318,43 @@ void knapsack_2 (void){
 
 		if (bound(u)> (double)maxprofit) {
 			Q.Push(u);
+		}
+	}
+}
+
+void knapsack_3 (void){
+	P_queue<Node> PQ;
+	Node u, v;
+
+	v.bound = bound(v);
+
+	PQ.push(v);
+
+	while (!PQ.isEmpty())
+	{
+		v = PQ.pop();
+
+		if (v.bound > maxprofit){
+			u.level = v.level + 1;
+
+			u.profit = v.profit + items[u.level].p;
+			u.weight = v.weight + items[u.level].w;
+
+			if ((u.weight <= K)&&(u.profit > maxprofit)) {maxprofit = u.profit;}
+
+			u.bound = bound(u);
+
+			if (bound(u) > (double)maxprofit) {
+				PQ.push(u);
+			}
+
+			u.weight = v.weight;
+			u.profit = v.profit;
+			u.bound = bound(u);
+
+			if (bound(u)> (double)maxprofit) {
+				PQ.push(u);
+			}
 		}
 	}
 }
@@ -336,7 +379,7 @@ int main (int argc, char* argv[]){
 	}
 
 	else if (!strcmp(argv[1], "best")){
-		// quick_ (0, N-1, arr);
+		knapsack_3();
 
 	}
 
