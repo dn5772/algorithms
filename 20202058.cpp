@@ -1,6 +1,8 @@
 #include <iostream>
 using namespace std;
 
+int cnt = 0;
+
 template <typename T> 
 class Queue {
   private :
@@ -9,7 +11,7 @@ class Queue {
   int front, rear, capacity;
 
   public :
-  
+
   Queue(int queueCapacity = 10);
   bool IsEmpty () const;
   T& Front() const;
@@ -65,6 +67,7 @@ void Queue<T>::Push(const T& x)
     delete[]queue;
     queue = newQueue;
   }
+  cnt++;
   rear = (rear + 1) % capacity; 
   queue[rear] = x;
 }
@@ -131,6 +134,7 @@ void P_queue<T>::push(const T& a){
 		child = parent;
 		parent = (parent - 1) / 2;
 	}
+	cnt++;
 	size++;
 }
 
@@ -285,6 +289,7 @@ double bound(Node u) {
 }
 
 void knapsack_1 (int i, int profit, int weight){
+	cnt++;
 	if ((weight <= K) &&(profit > maxprofit)){maxprofit = profit;}
 
 	if (promising(i, profit, weight)){
@@ -334,6 +339,7 @@ void knapsack_3 (void){
 
 	while (!PQ.isEmpty())
 	{
+		cnt++;
 		v = PQ.pop();
 
 		if (v.bound > maxprofit){
@@ -385,7 +391,7 @@ int main (int argc, char* argv[]){
 
 	}
 
-	cout << maxprofit << endl;
+	cout << maxprofit << "\n cnt : "<<cnt<< endl;
 
 	return 0;
 }
