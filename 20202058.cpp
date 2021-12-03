@@ -106,12 +106,40 @@ P_queue<T>::~P_queue(){
 
 template <typename T>
 void P_queue<T>::push(const T& a){
+	if (size() == capacity){
+		T* newPQ = new T[2*capacity];
+		for (int i=0; i < size; i++){
+			newPQ[i] = data[i];
+		}
+		delete[] data;
+		data = newPQ;
+		capacity *= 2;
+	}
 
+	data[size] = a;
+
+	int parent = (size - 1) / 2;
+	int child = size;
+
+	while ((parent >= 0) && (data[child] > data[parent]))
+	{
+		T tmp = data[parent];
+		data[parent] = data[child];
+		data[child] = tmp;
+
+		child = parent;
+		parent = (parent - 1) / 2;
+	}
+	size++;
 }
 
 template <typename T>
 T P_queue<T>::pop(){
+	T pop_data = data[0];
 
+
+
+	return
 }
 
 template <typename T>
