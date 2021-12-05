@@ -36,9 +36,10 @@ void InitPQueue(PriorityQueue* PQ) {
 
 void InsertPQ(PriorityQueue* root, struct node data) {
    root->heap[root->count] = data;
+   printf("w:%d p:%d x:%f\n", data.weight, data.profit, data.bound);
    int now = root->count;
    int parent = (root->count - 1) / 2;
-   while (now > 0 && root->heap[now].bound > root->heap[parent].bound) {
+   while ((parent >= 0) && (root->heap[now].bound > root->heap[parent].bound)) {
       nodeChange(&root->heap[now], &root->heap[parent]);
       now = parent;
       parent = (parent - 1) / 2;
@@ -53,16 +54,14 @@ struct node RemovePQ(PriorityQueue* root) {
    int now = 0, leftChild = 1, rightChild = 2;
    int target = now;
    while (leftChild < root->count) {
-      if (root->heap[target].bound < root->heap[leftChild].bound) target = leftChild;
-      if (root->heap[target].bound < root->heap[rightChild].bound && rightChild < root->count) target = rightChild;
-
-      if (target == now) break;
+      if (root->heap[leftChild].bound < root->heap[leftChild+1].bound) leftChild++;
+      if (root->heap[now].bound >= root->heap[leftChild].bound) break;
       else {
-         nodeChange(&root->heap[now], &root->heap[target]);
-         now = target;
-         leftChild = now * 2 + 1;
-         rightChild = now * 2 + 2;
+         nodeChange(&root->heap[now], &root->heap[leftChild]);
+         now = leftChild;
       }
+      leftChild = now * 2 + 1;
+      rightChild = now * 2 + 2;
    }
    return res;
 }
@@ -215,12 +214,12 @@ void bestfirst() {
          if ((u.weight <= k) && (u.profit > maxprofit))
             maxprofit = u.profit;
          u.bound = bound(u);
-         if (bound(u) > maxprofit)
-            InsertPQ(PQ, u);
+         if (bound(u) > (double)maxprofit)
+            {InsertPQ(PQ, u);}
          u.weight = o.weight;
-         u.profit = o.weight;
+         u.profit = o.profit;
          u.bound = bound(u);
-         if (u.bound > maxprofit) {
+         if (bound(u) > (double)maxprofit) {
             InsertPQ(PQ, u);
          }
       }

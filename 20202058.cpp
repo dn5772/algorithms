@@ -125,6 +125,8 @@ void P_queue<T>::push(const T& a){
 	int parent = (size - 1) / 2;
 	int child = size;
 
+	
+
 	while ((parent >= 0) && (data[child] > data[parent]))
 	{
 		T tmp = data[parent];
@@ -337,6 +339,7 @@ void knapsack_3 (void){
 	v.bound = bound(v);
 	cnt++;
 	PQ.push(v);
+	cout << v.weight <<" "<< v.profit<<" " << v.bound << endl;
 
 	while (!PQ.isEmpty())
 	{
@@ -354,6 +357,7 @@ void knapsack_3 (void){
 			cnt++;
 			if (bound(u) > (double)maxprofit) {
 				PQ.push(u);
+				cout << u.weight <<" "<< u.profit<<" " << u.bound << endl;
 			}
 
 			u.weight = v.weight;
@@ -362,6 +366,7 @@ void knapsack_3 (void){
 			cnt++;
 			if (bound(u)> (double)maxprofit) {
 				PQ.push(u);
+				cout << u.weight <<" "<< u.profit<<" " << u.bound << endl;
 			}
 		}
 	}
